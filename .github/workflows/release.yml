@@ -21,16 +21,8 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Add Microsoft .NET Repository
-      run: |
-        wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
-        sudo dpkg -i packages-microsoft-prod.deb
-        sudo apt-get update
-          
-    - name: Install .NET 6 Runtime
-      run: |
-          sudo apt-get update
-          sudo apt-get install -y dotnet-runtime-6.0
+    - name: Install ASP.NET Core Runtime
+      run: sudo apt-get install -y aspnetcore-runtime-6.0
  
     - name: Set VERSION variable from tag
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
