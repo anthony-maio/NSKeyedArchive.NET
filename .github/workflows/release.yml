@@ -20,7 +20,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        
+ 
+    - name: Install .NET 6 Runtime
+      run: |
+          sudo apt-get update
+          sudo apt-get install -y dotnet-runtime-6.0
+ 
     - name: Set VERSION variable from tag
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
       
