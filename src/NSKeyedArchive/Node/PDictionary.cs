@@ -1,10 +1,12 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NSKeyedArchive
 {
     /// <summary>
     /// Represents a dictionary of key-value pairs in a property list.
     /// </summary>
+    /// <remarks>Does not allow storing nulls currently because we use PNull(?)</remarks>
     public class PDictionary : PNode, IDictionary<string, PNode>
     {
         private readonly Dictionary<string, PNode> _items = [];
@@ -23,8 +25,7 @@ namespace NSKeyedArchive
         /// <exception cref="ArgumentNullException"></exception>
         public PDictionary(PDictionary dictionary)
         {
-            if (dictionary == null)
-                throw new ArgumentNullException(nameof(dictionary));
+            ArgumentNullException.ThrowIfNull(dictionary);
             foreach (var item in dictionary)
                 _items.Add(item.Key, item.Value);
         }
@@ -38,6 +39,7 @@ namespace NSKeyedArchive
         public ICollection<string> Keys => _items.Keys;
         /// <inheritdoc/>
         public ICollection<PNode> Values => _items.Values;
+
         /// <inheritdoc/>
         public PNode this[string key]
         {
@@ -47,10 +49,8 @@ namespace NSKeyedArchive
         /// <inheritdoc/>
         public void Add(string key, PNode value)
         {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
+            ArgumentNullException.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(value);
             _items.Add(key, value);
         }
         /// <inheritdoc/>
@@ -70,7 +70,7 @@ namespace NSKeyedArchive
         /// <inheritdoc/>
         public bool Remove(KeyValuePair<string, PNode> item) => ((ICollection<KeyValuePair<string, PNode>>)_items).Remove(item);
         /// <inheritdoc/>
-        public bool TryGetValue(string key, out PNode value) => _items.TryGetValue(key, out value);
+        public bool TryGetValue(string key, [MaybeNullWhen(false)] out PNode value) => _items.TryGetValue(key, out value);
         /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         /// <inheritdoc/>

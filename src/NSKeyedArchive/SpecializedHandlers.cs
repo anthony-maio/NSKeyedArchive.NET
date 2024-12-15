@@ -9,9 +9,11 @@ namespace NSKeyedArchive
     /// <summary>
     /// Provides handlers for specialized NS class types encountered in property lists.
     /// </summary>
+    /// <remarks>Uses the registry pattern for extensibility of adding new types</remarks>
     internal static class SpecializedHandlers
     {
         // Dictionary mapping class names to their handlers
+        // These are defaults, but 
         private static readonly Dictionary<string, Func<PDictionary, PNode>> Handlers =
             new(StringComparer.Ordinal)
             {
@@ -32,11 +34,49 @@ namespace NSKeyedArchive
             };
 
         /// <summary>
+        /// Registers a handler for a specific NS class type.
+        /// </summary>
+        /// <param name="className">The name of the NS class.</param>
+        /// <param name="handler">The handler function.</param>
+        /// <exception cref="ArgumentException">Thrown if the className is null or empty.</exception>
+        /// <example>
+        /// <code title="Adding a New Handler Dynamically">
+        /// SpecializedHandlers.RegisterHandler("CustomClass", dict =>
+        /// {
+        ///     var result = new PDictionary();
+        ///     if (dict.TryGetValue("customKey", out var value))
+        ///     {
+        ///         result["customValue"] = value;
+        ///     }
+        ///     return result;
+        /// });
+        /// </code>
+        /// </example>
+        public static void RegisterHandler(string className, Func<PDictionary, PNode> handler)
+        {
+            if (string.IsNullOrEmpty(className))
+                throw new ArgumentException("Class name cannot be null or empty.", nameof(className));
+            ArgumentNullException.ThrowIfNull(handler);
+
+            Handlers[className] = handler;
+        }
+
+        /// <summary>
         /// Attempts to handle a specialized NS class.
         /// </summary>
         /// <param name="dict">The dictionary containing class data.</param>
         /// <param name="className">The NS class name.</param>
         /// <returns>A handled PNode if successful, null if no handler exists.</returns>
+        /// <example>
+        /// <code title="Handling a Custom Class">
+        /// var customDict = new PDictionary
+        /// {
+        ///     ["customKey"] = new PString { Value = "Example" }
+        /// };
+        ///
+        /// var handledNode = SpecializedHandlers.TryHandle(customDict, "CustomClass");
+        /// </code>
+        /// </example>
         public static PNode? TryHandle(PDictionary dict, string className)
         {
             if (Handlers.TryGetValue(className, out var handler))
@@ -51,7 +91,7 @@ namespace NSKeyedArchive
             // NSColor can be stored in different color spaces
             if (dict.TryGetValue("NSRGB", out var rgbData) && rgbData is PData rgb)
             {
-                var bytes = rgb.Value;
+                byte[] bytes = rgb.Value;
                 if (bytes.Length >= 3)
                 {
                     return new PDictionary
@@ -68,7 +108,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSAttributedString(PDictionary dict)
         {
-            var result = new PDictionary();
+            PDictionary result = [];
 
             // Get the base string
             if (dict.TryGetValue("NSString", out var str))
@@ -87,7 +127,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSURLRequest(PDictionary dict)
         {
-            var result = new PDictionary();
+            PDictionary result = [];
 
             if (dict.TryGetValue("URL", out var url))
             {
@@ -151,7 +191,7 @@ namespace NSKeyedArchive
         {
             if (dict.TryGetValue("NS.decimal", out var dec) && dec is PString decStr)
             {
-                if (decimal.TryParse(decStr.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                if (decimal.TryParse(decStr.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal value))
                 {
                     return new PNumber { Value = value };
                 }
@@ -179,7 +219,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSRange(PDictionary dict)
         {
-            var range = new PDictionary();
+            PDictionary range = [];
 
             if (dict.TryGetValue("NS.location", out var location))
             {
@@ -196,7 +236,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSPoint(PDictionary dict)
         {
-            var point = new PDictionary();
+            PDictionary point = [];
 
             if (dict.TryGetValue("NS.x", out var x))
             {
@@ -213,7 +253,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSSize(PDictionary dict)
         {
-            var size = new PDictionary();
+            PDictionary size = [];
 
             if (dict.TryGetValue("NS.width", out var width))
             {
@@ -230,7 +270,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSRect(PDictionary dict)
         {
-            var rect = new PDictionary();
+            PDictionary rect = [];
 
             if (dict.TryGetValue("NS.x", out var x) &&
                 dict.TryGetValue("NS.y", out var y))

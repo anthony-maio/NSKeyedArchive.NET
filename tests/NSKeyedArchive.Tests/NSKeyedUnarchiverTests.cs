@@ -4,13 +4,19 @@ using NSKeyedArchive;
 
 namespace NSKeyedArchive.Tests
 {
+    /// <summary>
+    /// Basic smoke tests for NSKeyedUnarchiver.#TODO Needs expanding
+    /// </summary>
     public class NSKeyedUnarchiverTests
     {
+        /// <summary>
+        /// Tests that a simple archived NSString is correctly unarchived.
+        /// </summary>
         [Fact]
         public void Unarchive_SimpleString_ReturnsCorrectValue()
         {
             // This XML represents a simple archived NSString
-            var xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+            string xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
 <plist version=""1.0"">
 <dict>
@@ -48,8 +54,8 @@ namespace NSKeyedArchive.Tests
 </plist>";
 
             // Act
-            var plist = PList.FromXml(xmlPlist);
-            var unarchiver = new NSKeyedUnarchiver(plist);
+            PList plist = PList.FromXml(xmlPlist);
+            NSKeyedUnarchiver unarchiver = new NSKeyedUnarchiver(plist);
             var result = unarchiver.Unarchive();
 
             // Assert
@@ -58,11 +64,14 @@ namespace NSKeyedArchive.Tests
             Assert.Equal("Hello World", ((PString)result).Value);
         }
 
+        /// <summary>
+        /// Tests that an archived NSArray with two strings is correctly unarchived.
+        /// </summary>
         [Fact]
         public void Unarchive_SimpleArray_ReturnsCorrectValues()
         {
             // This XML represents an archived NSArray with two strings
-            var xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+            string xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
 <plist version=""1.0"">
 <dict>
@@ -111,25 +120,28 @@ namespace NSKeyedArchive.Tests
 </plist>";
 
             // Act
-            var plist = PList.FromXml(xmlPlist);
-            var unarchiver = new NSKeyedUnarchiver(plist);
+            PList plist = PList.FromXml(xmlPlist);
+            NSKeyedUnarchiver unarchiver = new NSKeyedUnarchiver(plist);
             var result = unarchiver.Unarchive();
 
             // Assert
             Assert.NotNull(result);
             Assert.IsType<PArray>(result);
 
-            var array = (PArray)result;
+            PArray array = (PArray)result;
             Assert.Equal(2, array.Count);
             Assert.Equal("First", ((PString)array[0]).Value);
             Assert.Equal("Second", ((PString)array[1]).Value);
         }
 
+        /// <summary>
+        /// Tests that an archived NSDictionary with two key-value pairs is correctly unarchived.
+        /// </summary>
         [Fact]
         public void Unarchive_SimpleDictionary_ReturnsCorrectValues()
         {
             // This XML represents an archived NSDictionary with two key-value pairs
-            var xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+            string xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
 <plist version=""1.0"">
 <dict>
@@ -191,34 +203,40 @@ namespace NSKeyedArchive.Tests
 </plist>";
 
             // Act
-            var plist = PList.FromXml(xmlPlist);
-            var unarchiver = new NSKeyedUnarchiver(plist);
+            PList plist = PList.FromXml(xmlPlist);
+            NSKeyedUnarchiver unarchiver = new NSKeyedUnarchiver(plist);
             var result = unarchiver.Unarchive();
 
             // Assert
             Assert.NotNull(result);
             Assert.IsType<PDictionary>(result);
 
-            var dict = (PDictionary)result;
+            PDictionary dict = (PDictionary)result;
             Assert.Equal(2, dict.Count);
             Assert.Equal("John", ((PString)dict["name"]).Value);
             Assert.Equal(42m, ((PNumber)dict["age"]).Value);
         }
 
+        /// <summary>
+        /// Tests that creating a PList from invalid XML throws a PListException.
+        /// </summary>
         [Fact]
         public void Create_InvalidXml_ThrowsPListException()
         {
-            var invalidXml = "<not-a-plist></not-a-plist>";
+            string invalidXml = "<not-a-plist></not-a-plist>";
 
             // Assert that creating a PList from invalid XML throws the correct exception
             Assert.Throws<PListException>(() => PList.FromXml(invalidXml));
         }
 
+        /// <summary>
+        /// Tests that creating an unarchiver from a non-NSKeyedArchiver plist throws a PListException.
+        /// </summary>
         [Fact]
         public void Create_NonArchiverPlist_ThrowsPListException()
         {
             // This is a valid plist but not an NSKeyedArchiver plist
-            var xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+            string xmlPlist = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
 <plist version=""1.0"">
 <dict>
@@ -227,10 +245,11 @@ namespace NSKeyedArchive.Tests
 </dict>
 </plist>";
 
-            var plist = PList.FromXml(xmlPlist);
+            PList plist = PList.FromXml(xmlPlist);
 
             // Assert that creating an unarchiver from a non-NSKeyedArchiver plist throws
             Assert.Throws<PListException>(() => new NSKeyedUnarchiver(plist));
         }
     }
 }
+

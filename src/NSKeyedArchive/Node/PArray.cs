@@ -7,7 +7,7 @@ namespace NSKeyedArchive
     /// </summary>
     public class PArray : PNode, IList<PNode>
     {
-        private readonly List<PNode> _items = new();
+        private readonly List<PNode> _items = [];
 
         /// <inheritdoc/>
         public override PNodeType NodeType => PNodeType.Array;
@@ -41,8 +41,7 @@ namespace NSKeyedArchive
         /// <exception cref="ArgumentNullException">Thrown when the item is null.</exception>
         public void Add(PNode item)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
+            ArgumentNullException.ThrowIfNull(item);
             _items.Add(item);
         }
 
@@ -80,8 +79,7 @@ namespace NSKeyedArchive
         /// <exception cref="ArgumentNullException">Thrown when the item is null.</exception>
         public void Insert(int index, PNode item)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
+            ArgumentNullException.ThrowIfNull(item);
             _items.Insert(index, item);
         }
 

@@ -1,29 +1,47 @@
-/*
- * NSKeyedArchive Unarchiver
- * Version: 2.1
- * Date: December 7, 2024
- * 
- * Changes from v2.0:
- * - Added support for recursive structure handling
- * - Enhanced input flexibility (string/bytes/file)
- * - Added direct NSKeyedArchiver reference handling
- * - Improved memory efficiency
- * - Added support for more NS types
- */
 
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace NSKeyedArchive
 {
+    /// <summary>
+    /// NSKeyedUnarchiver is a decoder that restores objects and data from an NSKeyedArchive.
+    /// This class provides mechanisms to interpret a binary or XML property list (plist) file
+    /// encoded using the NSKeyedArchiver format, commonly used in iOS/macOS applications.
+    /// </summary>
+    /// <remarks>
+    /// - Handles recursive structures and object references.
+    /// - Supports decoding various NS types such as arrays, dictionaries, strings, dates, and more.
+    /// - Allows removal of class name metadata for output customization.
+    /// </remarks>
     public class NSKeyedUnarchiver : IDisposable
     {
-        private readonly Dictionary<int, PNode> _objectCache = new();
+        /// <summary>
+        /// Caches decoded objects by their unique IDs to manage object references and prevent duplication.
+        /// </summary>
+        private readonly Dictionary<int, PNode> _objectCache = [];
+
+        /// <summary>
+        /// Tracks the current processing stack to detect recursive references.
+        /// </summary>
         private readonly Stack<int> _processingStack = new();
+
+        /// <summary>
+        /// Stores the top-level dictionary of the archive being decoded.
+        /// </summary>
         private readonly PDictionary _archive;
+
+        /// <summary>
+        /// Contains the list of objects in the archive.
+        /// </summary>
         private readonly PArray _objects;
+
+        /// <summary>
+        /// Indicates whether to strip class name metadata from the output.
+        /// </summary>
         private readonly bool _removeClassNames;
 
         /// <summary>
@@ -35,8 +53,7 @@ namespace NSKeyedArchive
         /// <exception cref="PListException">If the plist is not a valid NSKeyedArchiver archive.</exception>
         public NSKeyedUnarchiver(PList plist, bool removeClassNames = true)
         {
-            if (plist == null)
-                throw new ArgumentNullException(nameof(plist));
+            ArgumentNullException.ThrowIfNull(plist);
 
             if (plist.Root is not PDictionary root)
                 throw new PListException("Root must be a dictionary");
@@ -68,10 +85,11 @@ namespace NSKeyedArchive
             _archive = topDict;
         }
 
+
         /// <summary>
-        /// Unarchives the property list to a regular format.
+        /// Decodes the property list into its original object structure.
         /// </summary>
-        /// <returns>The unarchived root object.</returns>
+        /// <returns>The root object of the unarchived data.</returns>
         public PNode Unarchive()
         {
             try
@@ -81,7 +99,7 @@ namespace NSKeyedArchive
                     return UnarchiveObject(_archive["root"]);
                 }
 
-                var result = new PDictionary();
+                PDictionary result = [];
                 foreach (var kvp in _archive)
                 {
                     result.Add(kvp.Key, UnarchiveObject(kvp.Value));
@@ -110,22 +128,34 @@ namespace NSKeyedArchive
             }
         }
 
+        /// <summary>
+        /// Recursively decodes a node, resolving references and handling object types.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>The decoded PNode.</returns>
+        /// <exception cref="PListException">Thrown for malformed or unsupported nodes.</exception>
         private PNode UnarchiveObject(PNode node)
         {
             // Handle UID references
             if (IsUID(node, out int index))
             {
-                // Check for recursive references
-                if (_processingStack.Contains(index))
+                if (_processingStack.Count > 100)
                 {
-                    return new PString { Value = $"$ref{index}" };
+                    // Create a placeholder for the truncated object to maintain hierarchy
+                    var truncatedNode = new PDictionary
+                    {
+                        ["error"] = new PString { Value = "Recursion limit exceeded" },
+                        ["partial"] = _objectCache.ContainsKey(index) ? _objectCache[index] : new PNull()
+                    };
+
+                    throw new NSArchiveRecursionException(_processingStack.Count, index.ToString(), truncatedNode);
                 }
 
-                // Check cache
+                if (_processingStack.Contains(index))
+                    return new PString { Value = "$ref" + index };
+
                 if (_objectCache.TryGetValue(index, out var cached))
-                {
                     return cached;
-                }
 
                 _processingStack.Push(index);
                 try
@@ -142,9 +172,7 @@ namespace NSKeyedArchive
 
             // Handle special cases
             if (node is PString str && str.Value == "$null")
-            {
                 return new PNull();
-            }
 
             // Handle containers
             return node switch
@@ -155,13 +183,18 @@ namespace NSKeyedArchive
             };
         }
 
+        /// <summary>
+        /// Decodes a dictionary node, resolving object references and class-specific structures.
+        /// </summary>
+        /// <param name="dict">The dictionary to decode.</param>
+        /// <returns>The decoded PDictionary.</returns>
         private PNode UnarchiveDictionary(PDictionary dict)
         {
             // Handle class instances
             if (dict.TryGetValue("$class", out var classRef))
             {
-                var classDict = GetReferencedObject(classRef) as PDictionary;
-                var className = (classDict?["$classes"] as PArray)?[0] as PString;
+                PDictionary? classDict = GetReferencedObject(classRef) as PDictionary;
+                PString? className = (classDict?["$classes"] as PArray)?[0] as PString;
 
                 if (className != null)
                 {
@@ -180,9 +213,13 @@ namespace NSKeyedArchive
                     }
                 }
             }
+            else
+            {
+                throw new NSArchiveMalformedNodeException("Missing $class reference in dictionary.", "$class", dict);
+            }
 
             // Process regular dictionary
-            var resultDict = new PDictionary();
+            PDictionary resultDict = [];
             foreach (var kvp in dict)
             {
                 resultDict.Add(kvp.Key, UnarchiveObject(kvp.Value));
@@ -215,7 +252,7 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveNSArray(PDictionary dict)
         {
-            var array = new PArray();
+            PArray array = [];
             var objects = UnarchiveObject(dict["NS.objects"]);
             if (objects is PArray objArray)
             {
@@ -229,9 +266,9 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveNSDictionary(PDictionary dict)
         {
-            var result = new PDictionary();
-            var keys = UnarchiveObject(dict["NS.keys"]) as PArray;
-            var values = UnarchiveObject(dict["NS.objects"]) as PArray;
+            PDictionary result = [];
+            PArray? keys = UnarchiveObject(dict["NS.keys"]) as PArray;
+            PArray? values = UnarchiveObject(dict["NS.objects"]) as PArray;
 
             if (keys != null && values != null)
             {
@@ -264,7 +301,7 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveNSData(PDictionary dict)
         {
-            return dict["NS.data"] as PData ?? new PData { Value = Array.Empty<byte>() };
+            return dict["NS.data"] as PData ?? new PData { Value = [] };
         }
 
         private PNode UnarchiveNSSet(PDictionary dict)
@@ -275,7 +312,7 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveArray(PArray array)
         {
-            var result = new PArray();
+            PArray result = [];
             foreach (var item in array)
             {
                 result.Add(UnarchiveObject(item));
@@ -302,6 +339,9 @@ namespace NSKeyedArchive
             return IsUID(reference, out int index) ? _objects[index] : reference;
         }
 
+        /// <summary>
+        /// Releases all resources used by the NSKeyedUnarchiver.
+        /// </summary>
         public void Dispose()
         {
             _objectCache.Clear();

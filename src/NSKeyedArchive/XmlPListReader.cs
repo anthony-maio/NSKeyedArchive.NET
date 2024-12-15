@@ -24,13 +24,13 @@ namespace NSKeyedArchive
             try
             {
                 // Load and validate the XML document
-                var settings = new XmlReaderSettings
+                XmlReaderSettings settings = new XmlReaderSettings
                 {
                     DtdProcessing = DtdProcessing.Parse,
                     ValidationType = ValidationType.None
                 };
 
-                using var reader = XmlReader.Create(stream, settings);
+                using XmlReader reader = XmlReader.Create(stream, settings);
                 document = XDocument.Load(reader);
             }
             catch (XmlException ex)
@@ -53,18 +53,10 @@ namespace NSKeyedArchive
 
         public PNode Read()
         {
-            var root = _document.Root;
-            if (root == null)
-            {
-                throw new PListFormatException("Empty document");
-            }
+            var root = _document.Root ?? throw new PListFormatException("Empty document");
 
             // Get the first child element (should be only one)
-            var value = root.Elements().FirstOrDefault();
-            if (value == null)
-            {
-                throw new PListFormatException("Empty plist");
-            }
+            var value = root.Elements().FirstOrDefault() ?? throw new PListFormatException("Empty plist");
 
             return ParseNode(value);
         }
@@ -88,8 +80,8 @@ namespace NSKeyedArchive
 
         private PNode ParseDict(XElement element)
         {
-            var dict = new PDictionary();
-            var children = element.Elements().ToList();
+            PDictionary dict = [];
+            List<XElement> children = element.Elements().ToList();
 
             for (int i = 0; i < children.Count; i += 2)
             {
@@ -106,7 +98,7 @@ namespace NSKeyedArchive
                     throw new PListFormatException($"Expected 'key' element, found '{keyElement.Name.LocalName}'");
                 }
 
-                var key = keyElement.Value;
+                string key = keyElement.Value;
                 if (string.IsNullOrEmpty(key))
                 {
                     throw new PListFormatException("Empty dictionary key");
@@ -121,7 +113,7 @@ namespace NSKeyedArchive
 
         private PNode ParseArray(XElement element)
         {
-            var array = new PArray();
+            PArray array = [];
             foreach (var child in element.Elements())
             {
                 array.Add(ParseNode(child));
@@ -180,7 +172,7 @@ namespace NSKeyedArchive
         {
             try
             {
-                var value = Convert.FromBase64String(element.Value);
+                byte[] value = Convert.FromBase64String(element.Value);
                 return new PData { Value = value };
             }
             catch (FormatException ex)

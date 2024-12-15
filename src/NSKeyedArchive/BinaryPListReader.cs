@@ -17,7 +17,7 @@ namespace NSKeyedArchive
         private readonly List<long> _offsetTable;
 
         private static readonly DateTime Apple2001Reference =
-            new DateTime(2001, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            new(2001, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private BinaryPListReader(
             BinaryReader reader,
@@ -39,10 +39,10 @@ namespace NSKeyedArchive
 
         public static BinaryPListReader Create(Stream stream)
         {
-            var reader = new BinaryReader(stream);
+            BinaryReader reader = new BinaryReader(stream);
 
             // Verify magic number "bplist00"
-            var magic = reader.ReadBytes(8);
+            byte[] magic = reader.ReadBytes(8);
             if (!magic.AsSpan().SequenceEqual("bplist00"u8))
             {
                 throw new PListFormatException("Not a binary plist file");
@@ -50,21 +50,21 @@ namespace NSKeyedArchive
 
             // Read trailer (last 32 bytes)
             stream.Position = stream.Length - 32;
-            var trailer = reader.ReadBytes(32);
+            byte[] trailer = reader.ReadBytes(32);
 
             // Parse trailer
-            var offsetSize = trailer[6];
-            var objectRefSize = trailer[7];
-            var numObjects = BitConverter.ToInt32(trailer.Skip(24).Take(4).Reverse().ToArray());
-            var topObject = BitConverter.ToInt32(trailer.Skip(28).Take(4).Reverse().ToArray());
-            var offsetTableOffset = BitConverter.ToInt32(trailer.Skip(32 - 8).Take(4).Reverse().ToArray());
+            byte offsetSize = trailer[6];
+            byte objectRefSize = trailer[7];
+            int numObjects = BitConverter.ToInt32(trailer.Skip(24).Take(4).Reverse().ToArray());
+            int topObject = BitConverter.ToInt32(trailer.Skip(28).Take(4).Reverse().ToArray());
+            int offsetTableOffset = BitConverter.ToInt32(trailer.Skip(32 - 8).Take(4).Reverse().ToArray());
 
             // Read offset table
             stream.Position = offsetTableOffset;
-            var offsetTable = new List<long>();
+            List<long> offsetTable = [];
             for (int i = 0; i < numObjects; i++)
             {
-                var offset = ReadSizedInt(reader, offsetSize);
+                long offset = ReadSizedInt(reader, offsetSize);
                 offsetTable.Add(offset);
             }
 
@@ -85,10 +85,11 @@ namespace NSKeyedArchive
 
         private PNode ParseObject(int objectIndex)
         {
+            // consistency checks
             if (objectIndex >= _numObjects)
-            {
                 throw new PListFormatException($"Invalid object reference: {objectIndex}");
-            }
+            if (objectIndex >= _offsetTable.Count || _offsetTable[objectIndex] < 0 || _offsetTable[objectIndex] >= _reader.BaseStream.Length)
+                throw new PListFormatException($"Invalid offset for object index {objectIndex}");
 
             _reader.BaseStream.Position = _offsetTable[objectIndex];
             byte marker = _reader.ReadByte();
@@ -125,7 +126,7 @@ namespace NSKeyedArchive
         {
             int intSize = 1 << objectInfo;
             byte[] intBytes = _reader.ReadBytes(intSize).Reverse().ToArray();
-            var value = BitConverter.ToInt64(intBytes.PadLeft(8));
+            long value = BitConverter.ToInt64(intBytes.PadLeft(8));
             return new PNumber { Value = value };
         }
 
@@ -133,7 +134,7 @@ namespace NSKeyedArchive
         {
             int realSize = 1 << objectInfo;
             byte[] realBytes = _reader.ReadBytes(realSize).Reverse().ToArray();
-            var value = BitConverter.ToDouble(realBytes.PadLeft(8));
+            double value = BitConverter.ToDouble(realBytes.PadLeft(8));
             return new PNumber { Value = (decimal)value };
         }
 
@@ -171,7 +172,7 @@ namespace NSKeyedArchive
         private PNode ParseArray(byte objectInfo)
         {
             int count = GetCount(objectInfo);
-            var array = new PArray();
+            PArray array = [];
 
             for (int i = 0; i < count; i++)
             {
@@ -185,10 +186,10 @@ namespace NSKeyedArchive
         private PNode ParseDictionary(byte objectInfo)
         {
             int count = GetCount(objectInfo);
-            var dict = new PDictionary();
+            PDictionary dict = [];
 
             // Read keys
-            var keys = new string[count];
+            string[] keys = new string[count];
             for (int i = 0; i < count; i++)
             {
                 int keyRef = ReadObjectRef();
@@ -252,7 +253,7 @@ namespace NSKeyedArchive
                 return bytes;
             }
 
-            var padded = new byte[length];
+            byte[] padded = new byte[length];
             Array.Copy(bytes, 0, padded, length - bytes.Length, bytes.Length);
             return padded;
         }

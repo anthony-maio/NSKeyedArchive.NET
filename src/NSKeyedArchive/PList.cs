@@ -51,10 +51,7 @@ namespace NSKeyedArchive
         /// <exception cref="PListException">Thrown when the stream cannot be read or parsed.</exception>
         public static PList FromStream(Stream stream)
         {
-            if (stream == null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
+            ArgumentNullException.ThrowIfNull(stream);
 
             if (!stream.CanRead)
             {
@@ -93,12 +90,9 @@ namespace NSKeyedArchive
         /// <exception cref="PListException">Thrown when the data cannot be parsed.</exception>
         public static PList FromBytes(byte[] data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
+            ArgumentNullException.ThrowIfNull(data);
 
-            using var stream = new MemoryStream(data);
+            using MemoryStream stream = new MemoryStream(data);
             return FromStream(stream);
         }
 
@@ -115,15 +109,15 @@ namespace NSKeyedArchive
                 throw new ArgumentException("XML cannot be null or empty", nameof(xml));
             }
 
-            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+            using MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
             return FromStream(stream);
         }
 
         private static PListFormat DetectFormat(Stream stream)
         {
             // Read first few bytes to check format
-            var buffer = new byte[8];
-            var read = stream.Read(buffer, 0, buffer.Length);
+            byte[] buffer = new byte[8];
+            int read = stream.Read(buffer, 0, buffer.Length);
 
             if (read < 8)
             {
@@ -137,7 +131,7 @@ namespace NSKeyedArchive
             }
 
             // Check for XML format (should start with <?xml or <!DOCTYPE)
-            var possibleXml = Encoding.ASCII.GetString(buffer);
+            string possibleXml = Encoding.ASCII.GetString(buffer);
             if (possibleXml.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase) ||
                 possibleXml.StartsWith("<!DOC", StringComparison.OrdinalIgnoreCase))
             {
