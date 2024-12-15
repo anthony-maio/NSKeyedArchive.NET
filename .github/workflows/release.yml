@@ -18,10 +18,13 @@ jobs:
         dotnet-version: 6.0.x
         
     - name: Set VERSION from tag
-      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      run: echo "VERSION=${(echo $GITHUB_REF | cut -d/ -f3)" >> $GITHUB_ENV
       
-    - name: Pack
-      run: dotnet pack src/NSKeyedArchive/NSKeyedArchive.csproj -c Release /p:Version=${VERSION} -o .
+  - name: Pack
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION=$(echo $GITHUB_REF | cut -d/ -f3)
+          dotnet pack src/NSKeyedArchive/NSKeyedArchive.csproj -c Release /p:Version=$VERSION -o .
       
     - name: Push to NuGet
       run: dotnet nuget push "*.nupkg" -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
