@@ -1,0 +1,41 @@
+version: 2
+updates:
+  # Enable version updates for NuGet
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "automated"
+    assignees:
+      - "anthony-maio"
+    reviewers:
+      - "anthony-maio"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "automated"
+    assignees:
+      - "anthony-maio"
+    reviewers:
+      - "anthony-maio"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
