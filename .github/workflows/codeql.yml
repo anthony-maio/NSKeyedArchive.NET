@@ -29,7 +29,7 @@ jobs:
         fetch-depth: 0
         
     - name: Fetch tags
-      run: git fetch --tags --unshallow
+      run: git fetch --tags
       
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
