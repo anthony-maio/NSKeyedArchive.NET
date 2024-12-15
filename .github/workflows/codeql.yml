@@ -11,7 +11,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions:
       actions: read
       contents: read
@@ -43,9 +43,7 @@ jobs:
 
     - name: Add Microsoft .NET Repository
       run: |
-        sudo apt-get update
-        sudo apt-get install -y wget apt-transport-https
-        wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+        wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
         sudo dpkg -i packages-microsoft-prod.deb
         sudo apt-get update
         

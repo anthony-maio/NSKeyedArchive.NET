@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout Full Clone
       uses: actions/checkout@v4
@@ -23,9 +23,7 @@ jobs:
         
     - name: Add Microsoft .NET Repository
       run: |
-        sudo apt-get update
-        sudo apt-get install -y wget apt-transport-https
-        wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+        wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
         sudo dpkg -i packages-microsoft-prod.deb
         sudo apt-get update
           
