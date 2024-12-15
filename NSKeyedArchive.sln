@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		GitVersion.yml = GitVersion.yml
 		icon.png = icon.png
-		README.md = README.md
+		src\NSKeyedArchive\README.md = src\NSKeyedArchive\README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSKeyedArchive.Tests", "tests\NSKeyedArchive.Tests\NSKeyedArchive.Tests.csproj", "{814C16CE-4463-491A-A0E6-D0C88EE637EB}"
