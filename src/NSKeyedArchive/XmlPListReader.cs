@@ -80,7 +80,7 @@ namespace NSKeyedArchive
 
         private PNode ParseDict(XElement element)
         {
-            PDictionary dict = [];
+            PDictionary dict = new();
             List<XElement> children = element.Elements().ToList();
 
             for (int i = 0; i < children.Count; i += 2)
@@ -113,7 +113,7 @@ namespace NSKeyedArchive
 
         private PNode ParseArray(XElement element)
         {
-            PArray array = [];
+            PArray array = new();
             foreach (var child in element.Elements())
             {
                 array.Add(ParseNode(child));

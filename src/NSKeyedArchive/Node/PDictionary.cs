@@ -9,7 +9,7 @@ namespace NSKeyedArchive
     /// <remarks>Does not allow storing nulls currently because we use PNull(?)</remarks>
     public class PDictionary : PNode, IDictionary<string, PNode>
     {
-        private readonly Dictionary<string, PNode> _items = [];
+        private readonly Dictionary<string, PNode> _items = new();
 
         /// <summary>
         ///  Represents a dictionary of key-value pairs in a property list.

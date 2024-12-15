@@ -7,7 +7,7 @@ namespace NSKeyedArchive
     /// </summary>
     public class PArray : PNode, IList<PNode>
     {
-        private readonly List<PNode> _items = [];
+        private readonly List<PNode> _items = new();
 
         /// <inheritdoc/>
         public override PNodeType NodeType => PNodeType.Array;

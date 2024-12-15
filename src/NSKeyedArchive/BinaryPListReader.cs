@@ -43,7 +43,9 @@ namespace NSKeyedArchive
 
             // Verify magic number "bplist00"
             byte[] magic = reader.ReadBytes(8);
-            if (!magic.AsSpan().SequenceEqual("bplist00"u8))
+            byte[] expectedMagic = Encoding.UTF8.GetBytes("bplist00");
+
+            if (!magic.AsSpan().SequenceEqual(expectedMagic))
             {
                 throw new PListFormatException("Not a binary plist file");
             }
@@ -61,7 +63,7 @@ namespace NSKeyedArchive
 
             // Read offset table
             stream.Position = offsetTableOffset;
-            List<long> offsetTable = [];
+            List<long> offsetTable = new();
             for (int i = 0; i < numObjects; i++)
             {
                 long offset = ReadSizedInt(reader, offsetSize);
@@ -172,7 +174,7 @@ namespace NSKeyedArchive
         private PNode ParseArray(byte objectInfo)
         {
             int count = GetCount(objectInfo);
-            PArray array = [];
+            PArray array = new();
 
             for (int i = 0; i < count; i++)
             {
@@ -186,7 +188,7 @@ namespace NSKeyedArchive
         private PNode ParseDictionary(byte objectInfo)
         {
             int count = GetCount(objectInfo);
-            PDictionary dict = [];
+            PDictionary dict = new();
 
             // Read keys
             string[] keys = new string[count];

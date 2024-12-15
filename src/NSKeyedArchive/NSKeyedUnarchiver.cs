@@ -22,7 +22,7 @@ namespace NSKeyedArchive
         /// <summary>
         /// Caches decoded objects by their unique IDs to manage object references and prevent duplication.
         /// </summary>
-        private readonly Dictionary<int, PNode> _objectCache = [];
+        private readonly Dictionary<int, PNode> _objectCache = new();
 
         /// <summary>
         /// Tracks the current processing stack to detect recursive references.
@@ -99,7 +99,7 @@ namespace NSKeyedArchive
                     return UnarchiveObject(_archive["root"]);
                 }
 
-                PDictionary result = [];
+                PDictionary result = new();
                 foreach (var kvp in _archive)
                 {
                     result.Add(kvp.Key, UnarchiveObject(kvp.Value));
@@ -219,7 +219,7 @@ namespace NSKeyedArchive
             }
 
             // Process regular dictionary
-            PDictionary resultDict = [];
+            PDictionary resultDict = new();
             foreach (var kvp in dict)
             {
                 resultDict.Add(kvp.Key, UnarchiveObject(kvp.Value));
@@ -252,7 +252,7 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveNSArray(PDictionary dict)
         {
-            PArray array = [];
+            PArray array = new();
             var objects = UnarchiveObject(dict["NS.objects"]);
             if (objects is PArray objArray)
             {
@@ -266,7 +266,7 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveNSDictionary(PDictionary dict)
         {
-            PDictionary result = [];
+            PDictionary result = new();
             PArray? keys = UnarchiveObject(dict["NS.keys"]) as PArray;
             PArray? values = UnarchiveObject(dict["NS.objects"]) as PArray;
 
@@ -301,7 +301,7 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveNSData(PDictionary dict)
         {
-            return dict["NS.data"] as PData ?? new PData { Value = [] };
+            return dict["NS.data"] as PData ?? new PData { Value = Array.Empty<byte>() };  
         }
 
         private PNode UnarchiveNSSet(PDictionary dict)
@@ -312,7 +312,7 @@ namespace NSKeyedArchive
 
         private PNode UnarchiveArray(PArray array)
         {
-            PArray result = [];
+            PArray result = new();
             foreach (var item in array)
             {
                 result.Add(UnarchiveObject(item));

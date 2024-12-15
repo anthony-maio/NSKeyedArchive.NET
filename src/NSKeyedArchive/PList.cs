@@ -125,7 +125,9 @@ namespace NSKeyedArchive
             }
 
             // Check for binary format ("bplist00")
-            if (buffer.AsSpan().SequenceEqual("bplist00"u8))
+            byte[] expectedMagic = Encoding.UTF8.GetBytes("bplist00");
+
+            if (buffer.AsSpan().SequenceEqual(expectedMagic))
             {
                 return PListFormat.Binary;
             }

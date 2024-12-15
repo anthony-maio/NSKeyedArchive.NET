@@ -108,7 +108,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSAttributedString(PDictionary dict)
         {
-            PDictionary result = [];
+            PDictionary result = new();
 
             // Get the base string
             if (dict.TryGetValue("NSString", out var str))
@@ -127,7 +127,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSURLRequest(PDictionary dict)
         {
-            PDictionary result = [];
+            PDictionary result = new();
 
             if (dict.TryGetValue("URL", out var url))
             {
@@ -219,7 +219,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSRange(PDictionary dict)
         {
-            PDictionary range = [];
+            PDictionary range = new();
 
             if (dict.TryGetValue("NS.location", out var location))
             {
@@ -236,7 +236,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSPoint(PDictionary dict)
         {
-            PDictionary point = [];
+            PDictionary point = new();
 
             if (dict.TryGetValue("NS.x", out var x))
             {
@@ -253,7 +253,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSSize(PDictionary dict)
         {
-            PDictionary size = [];
+            PDictionary size = new();
 
             if (dict.TryGetValue("NS.width", out var width))
             {
@@ -270,7 +270,7 @@ namespace NSKeyedArchive
 
         private static PNode HandleNSRect(PDictionary dict)
         {
-            PDictionary rect = [];
+            PDictionary rect = new();
 
             if (dict.TryGetValue("NS.x", out var x) &&
                 dict.TryGetValue("NS.y", out var y))
