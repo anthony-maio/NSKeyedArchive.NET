@@ -5,7 +5,7 @@ using System.Reflection;
 namespace NSKeyedArchive
 {
     /// <summary>
-    /// Exception thrown when there is an error processing a property list.
+    /// Exception thrown when there is an error processing a property list (base)
     /// </summary>
     public class PListException : Exception
     {
