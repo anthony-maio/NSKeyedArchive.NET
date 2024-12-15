@@ -16,4 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\NSKeyedArchive\NSKeyedArchive.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="GitVersion.MsBuild" Version="6.1.0" />
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+  </ItemGroup>
 </Project>
