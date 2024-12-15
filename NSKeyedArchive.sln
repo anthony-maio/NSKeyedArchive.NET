@@ -1,0 +1,49 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D8083B69-F2A8-4E6A-9BA4-E6D8BB3DC840}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSKeyedArchive", "src\NSKeyedArchive\NSKeyedArchive.csproj", "{F1E6F2B5-6C8B-4E1B-9D49-E8C6E6EC11A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9E5E01D0-4C01-4C8B-AB53-C6E9F8B69D15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C3C1ED5A-6E0B-4E1B-8C3E-4C6E6EC11A9F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		CHANGELOG.md = CHANGELOG.md
+		Directory.Build.props = Directory.Build.props
+		GitVersion.yml = GitVersion.yml
+		icon.png = icon.png
+		src\NSKeyedArchive\README.md = src\NSKeyedArchive\README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSKeyedArchive.Tests", "tests\NSKeyedArchive.Tests\NSKeyedArchive.Tests.csproj", "{814C16CE-4463-491A-A0E6-D0C88EE637EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1E6F2B5-6C8B-4E1B-9D49-E8C6E6EC11A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1E6F2B5-6C8B-4E1B-9D49-E8C6E6EC11A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1E6F2B5-6C8B-4E1B-9D49-E8C6E6EC11A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1E6F2B5-6C8B-4E1B-9D49-E8C6E6EC11A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{814C16CE-4463-491A-A0E6-D0C88EE637EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{814C16CE-4463-491A-A0E6-D0C88EE637EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{814C16CE-4463-491A-A0E6-D0C88EE637EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{814C16CE-4463-491A-A0E6-D0C88EE637EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F1E6F2B5-6C8B-4E1B-9D49-E8C6E6EC11A9} = {D8083B69-F2A8-4E6A-9BA4-E6D8BB3DC840}
+		{814C16CE-4463-491A-A0E6-D0C88EE637EB} = {9E5E01D0-4C01-4C8B-AB53-C6E9F8B69D15}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5D8A95D0-4C01-4C8B-AB53-C6E9F8B69D15}
+	EndGlobalSection
+EndGlobal

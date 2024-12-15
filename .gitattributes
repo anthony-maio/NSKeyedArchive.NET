@@ -1,0 +1,15 @@
+# Normalize all text files to LF
+* text=auto eol=lf
+
+# Ensure specific file types always use LF
+*.cs   text eol=lf
+*.csproj text eol=lf
+*.xml  text eol=lf
+*.sh   text eol=lf
+*.yml  text eol=lf
+
+# Binary files should be excluded from line-ending normalization
+*.png  binary
+*.jpg  binary
+*.dll  binary
+*.exe  binary

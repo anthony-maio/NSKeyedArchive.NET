@@ -1,0 +1,34 @@
+name: Release to NuGet
+on:
+  push:
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout Full Clone
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Fetch tags
+      run: git fetch --tags
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Install ASP.NET Core Runtime
+      run: sudo apt-get install -y aspnetcore-runtime-6.0
+ 
+    - name: Set VERSION variable from tag
+      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      
+    - name: Pack
+      run: dotnet pack src/NSKeyedArchive/NSKeyedArchive.csproj -c Release /p:Version=${VERSION} -o .
+      
+    - name: Push to NuGet
+      run: dotnet nuget push "*.nupkg" -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
