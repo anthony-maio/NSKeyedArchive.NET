@@ -1,61 +1,62 @@
 name: Publish New Release
 on:
+  workflow_run:
+    workflows: ["Build and Test"]
+    types:
+      - completed
   push:
     tags:
-    - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-22.04
+    
     steps:
-    - name: Checkout Full Clone
+    - name: Checkout Repo
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
     
     - name: Fetch tags
       run: git fetch --tags
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
         cache: true
-        
-    - name: Install ASP.NET Core Runtime
-      run: sudo apt-get install -y aspnetcore-runtime-6.0 aspnetcore-runtime-7.0
- 
-    - name: Set VERSION variable from tag
-      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-      
-    - name: Pack
-      run: dotnet pack src/NSKeyedArchive/NSKeyedArchive.csproj -c Release /p:Version=${VERSION} -o .
-      
-    - name: Push to NuGet
-      run: dotnet nuget push "*.nupkg" -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
 
-    - name: Install GitHub Changelog Generator
-      run: |
-          sudo apt-get update
-          sudo apt-get install -y ruby ruby-dev build-essential
-          sudo gem install github_changelog_generator
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+
+    - name: GitVersion Process
+      uses: ./.github/workflows/gitversion.yml
+      with:
+        working-directory: .
+
+    - name: Pack NuGet Package
+      run: dotnet pack src/NSKeyedArchive/NSKeyedArchive.csproj --no-build -c Release /p:Version=${{ env.VERSION }} -o .
+
+    - name: Push NuGet Package
+      run: dotnet nuget push "*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
 
     - name: Generate Changelog
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        github_changelog_generator -u anthony-maio -p NSKeyedArchive.NET
-        git add CHANGELOG.md
-        git commit -m "Update changelog for version ${VERSION}"
-        git push origin main
-      
+      uses: TriPSs/github-changelog-generator-action@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        user: anthony-maio
+        project: NSKeyedArchive.NET
+
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create "v${VERSION}" "*.nupkg" --title "Release v${VERSION}" --notes "Automated release of version v${VERSION}."
-        
-    - name: Upload Artifact to Github
+        gh release create "v${{ env.VERSION }}" "*.nupkg" --title "Release v${{ env.VERSION}}" --notes "Automated release of version v${{ env.VERSION}}."
+
+    - name: Upload Artifact to GitHub
       uses: actions/upload-artifact@v3
       with:
         name: nuget-package

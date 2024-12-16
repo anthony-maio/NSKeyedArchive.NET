@@ -14,20 +14,22 @@ jobs:
       with:
         fetch-depth: 0
         
-    - name: Fetch tags
-      run: git fetch --tags
-      
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
         cache: true
-  
-    - name: Restore
-      run: dotnet restore
+        
+    - name: GitVersion Processing
+      uses: ./.github/workflows/gitversion.yml
+      with:
+        working-directory: . 
+        
+    - name: Restore Dependencies
+      run: dotnet restore --force-evaluate
       
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build -c Release /p:Version=${{ env.VERSION }}
       
     - name: Test
       run: dotnet test -c Release --no-build
@@ -37,3 +39,9 @@ jobs:
       with:
         name: test-results
         path: "**/TestResults/*.trx"
+        
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: "src/NSKeyedArchive/bin/Release/net*/"

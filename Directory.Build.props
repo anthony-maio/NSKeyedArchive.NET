@@ -11,7 +11,11 @@
     <PackageProjectUrl>https://github.com/anthony-maio/NSKeyedArchive.NET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/anthony-maio/NSKeyedArchive.NET</RepositoryUrl>
     <PackageTags>plist;propertylist;apple;macos;nsarchiver;nsplist</PackageTags>
-
+        <Version>$(GitVersion_NuGetVersion)</Version>
+        <AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
+        <FileVersion>$(GitVersion_AssemblySemFileVer)</FileVersion>
+        <InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <!-- SourceLink -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
