@@ -6,7 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Anthony Maio</Authors>
     <Product>NSKeyedArchive.NET</Product>
-    <Description>A .NET library for working with Apple NSKeyedArchive property lists</Description>
+    <Description>A .NET library for decoding and working with Apple .plist and bplist. files that supports unarchiving NSKeyedArchives</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/anthony-maio/NSKeyedArchive.NET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/anthony-maio/NSKeyedArchive.NET</RepositoryUrl>

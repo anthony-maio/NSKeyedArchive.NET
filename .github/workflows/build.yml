@@ -1,13 +1,14 @@
 name: Build and Test
 on:
   push:
-    branches: [ "develop", "release" ]
   pull_request:
-    branches: [ "release" ]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+    strategy:
+        matrix:
+            dotnet-version: ['6.0.x','7.0.x','8.0.x']
     steps:
     - uses: actions/checkout@v4
       with:
@@ -19,11 +20,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
-
-    - name: Install ASP.NET Core Runtime
-      run: sudo apt-get install -y aspnetcore-runtime-6.0 aspnetcore-runtime-7.0
-   
+        dotnet-version: ${{ matrix.dotnet-version }}
+        cache: true
+  
     - name: Restore
       run: dotnet restore
       
@@ -32,3 +31,9 @@ jobs:
       
     - name: Test
       run: dotnet test -c Release --no-build
+      
+    - name: Save Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: "**/TestResults/*.trx"

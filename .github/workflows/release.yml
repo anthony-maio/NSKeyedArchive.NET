@@ -20,6 +20,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+        cache: true
         
     - name: Install ASP.NET Core Runtime
       run: sudo apt-get install -y aspnetcore-runtime-6.0 aspnetcore-runtime-7.0
@@ -53,3 +54,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh release create "v${VERSION}" "*.nupkg" --title "Release v${VERSION}" --notes "Automated release of version v${VERSION}."
+        
+    - name: Upload Artifact to Github
+      uses: actions/upload-artifact@v3
+      with:
+        name: nuget-package
+        path: "*.nupkg"
