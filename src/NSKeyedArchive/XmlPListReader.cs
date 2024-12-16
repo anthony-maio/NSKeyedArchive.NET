@@ -78,7 +78,7 @@ namespace NSKeyedArchive
             };
         }
 
-        private PNode ParseDict(XElement element)
+        private PDictionary ParseDict(XElement element)
         {
             PDictionary dict = new();
             List<XElement> children = element.Elements().ToList();
@@ -111,7 +111,7 @@ namespace NSKeyedArchive
             return dict;
         }
 
-        private PNode ParseArray(XElement element)
+        private PArray ParseArray(XElement element)
         {
             PArray array = new();
             foreach (var child in element.Elements())
@@ -121,12 +121,12 @@ namespace NSKeyedArchive
             return array;
         }
 
-        private PNode ParseString(XElement element)
+        private PString ParseString(XElement element)
         {
             return new PString { Value = element.Value };
         }
 
-        private PNode ParseInteger(XElement element)
+        private PNumber ParseInteger(XElement element)
         {
             if (!decimal.TryParse(
                 element.Value,
@@ -140,7 +140,7 @@ namespace NSKeyedArchive
             return new PNumber { Value = value };
         }
 
-        private PNode ParseReal(XElement element)
+        private PNumber ParseReal(XElement element)
         {
             if (!decimal.TryParse(
                 element.Value,
@@ -154,7 +154,7 @@ namespace NSKeyedArchive
             return new PNumber { Value = value };
         }
 
-        private PNode ParseDate(XElement element)
+        private PDate ParseDate(XElement element)
         {
             if (!DateTime.TryParse(
                 element.Value,
@@ -168,7 +168,7 @@ namespace NSKeyedArchive
             return new PDate { Value = value };
         }
 
-        private PNode ParseData(XElement element)
+        private PData ParseData(XElement element)
         {
             try
             {

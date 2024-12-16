@@ -22,7 +22,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Install ASP.NET Core Runtime
-      run: sudo apt-get install -y aspnetcore-runtime-6.0
+      run: sudo apt-get install -y aspnetcore-runtime-6.0 aspnetcore-runtime-7.0
    
     - name: Restore
       run: dotnet restore
