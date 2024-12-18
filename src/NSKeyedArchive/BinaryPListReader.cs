@@ -124,7 +124,7 @@ namespace NSKeyedArchive
             };
         }
 
-        private PNode ParseInteger(byte objectInfo)
+        private PNumber ParseInteger(byte objectInfo)
         {
             int intSize = 1 << objectInfo;
             byte[] intBytes = _reader.ReadBytes(intSize).Reverse().ToArray();
@@ -132,7 +132,7 @@ namespace NSKeyedArchive
             return new PNumber { Value = value };
         }
 
-        private PNode ParseReal(byte objectInfo)
+        private PNumber ParseReal(byte objectInfo)
         {
             int realSize = 1 << objectInfo;
             byte[] realBytes = _reader.ReadBytes(realSize).Reverse().ToArray();
@@ -140,7 +140,7 @@ namespace NSKeyedArchive
             return new PNumber { Value = (decimal)value };
         }
 
-        private PNode ParseDate()
+        private PDate ParseDate()
         {
             byte[] dateBytes = _reader.ReadBytes(8).Reverse().ToArray();
             double seconds = BitConverter.ToDouble(dateBytes);
@@ -148,14 +148,14 @@ namespace NSKeyedArchive
             return new PDate { Value = date };
         }
 
-        private PNode ParseData(byte objectInfo)
+        private PData ParseData(byte objectInfo)
         {
             int count = GetCount(objectInfo);
             byte[] data = _reader.ReadBytes(count);
             return new PData { Value = data };
         }
 
-        private PNode ParseAsciiString(byte objectInfo)
+        private PString ParseAsciiString(byte objectInfo)
         {
             int count = GetCount(objectInfo);
             byte[] stringBytes = _reader.ReadBytes(count);
@@ -163,7 +163,7 @@ namespace NSKeyedArchive
             return new PString { Value = value };
         }
 
-        private PNode ParseUnicodeString(byte objectInfo)
+        private PString ParseUnicodeString(byte objectInfo)
         {
             int count = GetCount(objectInfo);
             byte[] stringBytes = _reader.ReadBytes(count * 2);
@@ -171,7 +171,7 @@ namespace NSKeyedArchive
             return new PString { Value = value };
         }
 
-        private PNode ParseArray(byte objectInfo)
+        private PArray ParseArray(byte objectInfo)
         {
             int count = GetCount(objectInfo);
             PArray array = new();
@@ -185,7 +185,7 @@ namespace NSKeyedArchive
             return array;
         }
 
-        private PNode ParseDictionary(byte objectInfo)
+        private PDictionary ParseDictionary(byte objectInfo)
         {
             int count = GetCount(objectInfo);
             PDictionary dict = new();

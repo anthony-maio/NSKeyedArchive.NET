@@ -5,23 +5,11 @@ patch-version-bump-message: "^(build|chore|ci|docs|fix|perf|refactor|revert|styl
 
 branches:
   release:
-    regex: ^release$
+    regex: ^main$
     mode: ContinuousDelivery
     tag: ''
     increment: Patch
     prevent-increment-of-merged-branch-version: true
-    track-merge-target: false
-    source-branches: [ 'develop' ]
-    is-release-branch: true
-
-  develop:
-    regex: ^develop$
-    mode: ContinuousDelivery
-    tag: beta
-    increment: Minor
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: true
-    is-mainline: false
 
 ignore:
   sha: []

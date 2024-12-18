@@ -145,7 +145,7 @@ namespace NSKeyedArchive
                     var truncatedNode = new PDictionary
                     {
                         ["error"] = new PString { Value = "Recursion limit exceeded" },
-                        ["partial"] = _objectCache.ContainsKey(index) ? _objectCache[index] : new PNull()
+                        ["partial"] = _objectCache.TryGetValue(index, out PNode? pnode) ? pnode : new PNull()
                     };
 
                     throw new NSArchiveRecursionException(_processingStack.Count, index.ToString(), truncatedNode);
@@ -250,7 +250,7 @@ namespace NSKeyedArchive
             return SpecializedHandlers.TryHandle(dict, className) ?? dict;
         }
 
-        private PNode UnarchiveNSArray(PDictionary dict)
+        private PArray UnarchiveNSArray(PDictionary dict)
         {
             PArray array = new();
             var objects = UnarchiveObject(dict["NS.objects"]);
@@ -264,7 +264,7 @@ namespace NSKeyedArchive
             return array;
         }
 
-        private PNode UnarchiveNSDictionary(PDictionary dict)
+        private PDictionary UnarchiveNSDictionary(PDictionary dict)
         {
             PDictionary result = new();
             PArray? keys = UnarchiveObject(dict["NS.keys"]) as PArray;
@@ -283,7 +283,7 @@ namespace NSKeyedArchive
             return result;
         }
 
-        private PNode UnarchiveNSString(PDictionary dict)
+        private PString UnarchiveNSString(PDictionary dict)
         {
             return new PString { Value = (dict["NS.string"] as PString)?.Value ?? "" };
         }
@@ -304,13 +304,13 @@ namespace NSKeyedArchive
             return dict["NS.data"] as PData ?? new PData { Value = Array.Empty<byte>() };  
         }
 
-        private PNode UnarchiveNSSet(PDictionary dict)
+        private PArray UnarchiveNSSet(PDictionary dict)
         {
             // Convert NSSet to array for simplicity
             return UnarchiveNSArray(dict);
         }
 
-        private PNode UnarchiveArray(PArray array)
+        private PArray UnarchiveArray(PArray array)
         {
             PArray result = new();
             foreach (var item in array)
