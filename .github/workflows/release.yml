@@ -32,7 +32,7 @@ jobs:
         name: build-artifacts
 
     - name: GitVersion Process
-      uses: ./.github/workflows/gitversion.yml
+      uses: ./.github/actions/gitversion
       with:
         working-directory: .
 

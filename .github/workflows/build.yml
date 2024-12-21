@@ -19,10 +19,10 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
         
-    - name: GitVersion Processing
-      uses: ./.github/workflows/gitversion.yml
+    - name: GitVersion Process
+      uses: ./.github/actions/gitversion
       with:
-        working-directory: . 
+        working-directory: .
         
     - name: Restore Dependencies
       run: dotnet restore --force-evaluate
