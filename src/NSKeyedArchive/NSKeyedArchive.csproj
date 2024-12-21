@@ -3,11 +3,14 @@
         <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
         <IsPackable>true</IsPackable>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIconFile>icon.png</PackageIconFile>   
+        <PackageIconFile>icon.png</PackageIconFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RepositoryType>git</RepositoryType>   
     </PropertyGroup>
     <ItemGroup>
-        <None Include="README.md" Pack="true" PackagePath="\" />
-        <None Include="icon.png" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="True" PackagePath="\" />
+        <None Include="icon.png" Pack="True" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
       <PackageReference Update="GitVersion.MsBuild" Version="6.1.0" />
