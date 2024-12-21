@@ -1,46 +1,42 @@
-name: Build and Test
+name: Build and Version
+
 on:
   push:
   pull_request:
 
+defaults:
+  run:
+    working-directory: ./src/NSKeyedArchive
+
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-        matrix:
-            dotnet-version: ['6.0.x','7.0.x','8.0.x']
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important for GitVersion
+          
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v3.0
+        with:
+          versionSpec: 5.x
+          
+      - name: Execute GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.0.0
         
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Display Version
+        run: |
+          echo "Version: ${{ steps.gitversion.outputs.semVer }}"
+          echo "VERSION=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_ENV
+          
+      - name: Build
+        run: dotnet build -c Release /p:Version=${{ env.VERSION }}
         
-    - name: GitVersion Process
-      uses: ./.github/actions/gitversion
-      with:
-        working-directory: .
-        
-    - name: Restore Dependencies
-      run: dotnet restore --force-evaluate
-      
-    - name: Build
-      run: dotnet build -c Release /p:Version=${{ env.VERSION }}
-      
-    - name: Test
-      run: dotnet test -c Release --no-build
-      
-    - name: Save Test Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: "**/TestResults/*.trx"
-        
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-artifacts
-        path: "src/NSKeyedArchive/bin/Release/net*/"
+      - name: Test
+        run: dotnet test -c Release --no-build
