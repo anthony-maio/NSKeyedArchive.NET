@@ -1,31 +1,30 @@
-name: GitVersion Workflow
+name: "GitVersion Workflow"
+description: "Processes GitVersion"
+inputs:
+  working-directory:
+    description: "The working directory for GitVersion"
+    required: true
+    default: "."
 
-on:
-  workflow_call:
-    inputs:
-      working-directory:
-        description: 'The working directory for GitVersion'
-        required: true
-        default: '.'
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-jobs:
-  calculate-version:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Install GitVersion
+      run: dotnet tool install --global GitVersion.Tool
 
-      - name: Install GitVersion
-        run: dotnet tool install --global GitVersion.Tool
+    - name: Run GitVersion
+      run: gitversion > gitversion.json
+      env:
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
 
-      - name: Run GitVersion
-        working-directory: ${{ inputs.working-directory }}
-        run: gitversion > gitversion.json
-
-      - name: Export GitVersion Variables
-        working-directory: ${{ inputs.working-directory }}
-        run: |
-          VERSION=$(cat gitversion.json | jq -r '.NuGetVersion')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+    - name: Export GitVersion Variables
+      run: |
+        VERSION=$(cat gitversion.json | jq -r '.NuGetVersion')
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      env:
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
