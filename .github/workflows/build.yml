@@ -18,8 +18,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-        cache-dependency-path: '**/package-lock.json'
-        cache: true
         
     - name: GitVersion Processing
       uses: ./.github/workflows/gitversion.yml
