@@ -106,7 +106,7 @@ namespace NSKeyedArchive
             return new PNull();
         }
 
-        private static PNode HandleNSAttributedString(PDictionary dict)
+        private static PDictionary HandleNSAttributedString(PDictionary dict)
         {
             PDictionary result = new();
 
@@ -125,7 +125,7 @@ namespace NSKeyedArchive
             return result;
         }
 
-        private static PNode HandleNSURLRequest(PDictionary dict)
+        private static PDictionary HandleNSURLRequest(PDictionary dict)
         {
             PDictionary result = new();
 
@@ -217,7 +217,7 @@ namespace NSKeyedArchive
             return new PNull();
         }
 
-        private static PNode HandleNSRange(PDictionary dict)
+        private static PDictionary HandleNSRange(PDictionary dict)
         {
             PDictionary range = new();
 
@@ -234,7 +234,7 @@ namespace NSKeyedArchive
             return range;
         }
 
-        private static PNode HandleNSPoint(PDictionary dict)
+        private static PDictionary HandleNSPoint(PDictionary dict)
         {
             PDictionary point = new();
 
@@ -251,7 +251,7 @@ namespace NSKeyedArchive
             return point;
         }
 
-        private static PNode HandleNSSize(PDictionary dict)
+        private static PDictionary HandleNSSize(PDictionary dict)
         {
             PDictionary size = new();
 
@@ -268,7 +268,7 @@ namespace NSKeyedArchive
             return size;
         }
 
-        private static PNode HandleNSRect(PDictionary dict)
+        private static PDictionary HandleNSRect(PDictionary dict)
         {
             PDictionary rect = new();
 

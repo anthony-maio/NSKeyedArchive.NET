@@ -1,27 +1,33 @@
+# Version: 1.0.0
+# Date: 2024-12-21
+# Features:
+# - Main branch continuous delivery configuration
+# - Feature branch versioning
+# - Support for conventional commits
+# - Improved version calculation for development branches
+
 mode: ContinuousDelivery
 major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n.*BREAKING CHANGE:\\s.*)$"
 minor-version-bump-message: "^(feat)(\\([\\w\\s-]*\\))?:"
 patch-version-bump-message: "^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:"
 
 branches:
-  release:
-    regex: ^release$
+  main:
+    regex: ^main$
     mode: ContinuousDelivery
     tag: ''
     increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
-    source-branches: [ 'develop' ]
+    tracks-release-branches: false
     is-release-branch: true
 
-  develop:
-    regex: ^develop$
-    mode: ContinuousDelivery
-    tag: beta
-    increment: Minor
-    prevent-increment-of-merged-branch-version: false
+ # Catch-all configuration for any other branch
+  feature:
+    regex: ^.*$
+    mode: ContinuousDeployment
+    tag: alpha.{BranchName}
+    increment: Inherit
     track-merge-target: true
-    is-mainline: false
-
-ignore:
-  sha: []
+    tracks-release-branches: false
+    is-release-branch: false

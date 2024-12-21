@@ -1,34 +1,101 @@
-name: Release to NuGet
+# Version: 1.0.0
+# Date: 2024-12-21
+# Purpose: Handles NuGet package publishing and GitHub releases
+# Triggers: 
+# - Push to main branch
+# - Version tags
+# - Manual workflow dispatch
+
+name: Release
+
 on:
+  # Trigger on main branch pushes
+  push:
+    branches:
+      - main
+    
+  # Trigger on version tags
   push:
     tags:
-    - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'Type of release'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - production
+          - preview
+
+defaults:
+  run:
+    working-directory: ./src/NSKeyedArchive
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-22.04
+    
     steps:
-    - name: Checkout Full Clone
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Fetch tags
-      run: git fetch --tags
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v3.0
+        with:
+          versionSpec: 5.x
+          
+      - name: Execute GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.0.0
         
-    - name: Install ASP.NET Core Runtime
-      run: sudo apt-get install -y aspnetcore-runtime-6.0
- 
-    - name: Set VERSION variable from tag
-      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-      
-    - name: Pack
-      run: dotnet pack src/NSKeyedArchive/NSKeyedArchive.csproj -c Release /p:Version=${VERSION} -o .
-      
-    - name: Push to NuGet
-      run: dotnet nuget push "*.nupkg" -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+      # Pack NuGet package with determined version
+      - name: Pack
+        run: |
+          dotnet pack  \
+            -c Release \
+            /p:Version=${{ steps.gitversion.outputs.semVer }} \
+            -o nupkg
+            
+      # Generate release notes from commits
+      - name: Generate Release Notes
+        run: |
+          echo "# Release ${{ steps.gitversion.outputs.semVer }}" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "## Changes in this release" >> RELEASE_NOTES.md
+          git log $(git describe --tags --abbrev=0 2>/dev/null || echo HEAD^)..HEAD --pretty=format:"* %s" >> RELEASE_NOTES.md
+          
+      # Publish to NuGet if:
+      # 1. We're on main branch OR
+      # 2. This is a tagged release OR
+      # 3. This is a manual production release
+      - name: Publish to NuGet
+        if: |
+          github.ref == 'refs/heads/main' ||
+          startsWith(github.ref, 'refs/tags/v') ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.releaseType == 'production')
+        run: |
+          dotnet nuget push "./nupkg/*.nupkg" \
+            -k ${{ secrets.NUGET_API_KEY }} \
+            -s https://api.nuget.org/v3/index.json
+            
+      # Create GitHub Release for tagged versions
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF#refs/tags/}" \
+            --title "Release ${{ steps.gitversion.outputs.semVer }}" \
+            --notes-file RELEASE_NOTES.md \
+            ./nupkg/*.nupkg

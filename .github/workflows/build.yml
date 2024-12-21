@@ -1,34 +1,42 @@
-name: Build and Test
+name: Build and Version
+
 on:
   push:
-    branches: [ "develop", "release" ]
   pull_request:
-    branches: [ "release" ]
+
+defaults:
+  run:
+    working-directory: ./src/NSKeyedArchive
 
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Fetch tags
-      run: git fetch --tags
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important for GitVersion
+          
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-    - name: Install ASP.NET Core Runtime
-      run: sudo apt-get install -y aspnetcore-runtime-6.0
-   
-    - name: Restore
-      run: dotnet restore
-      
-    - name: Build
-      run: dotnet build -c Release
-      
-    - name: Test
-      run: dotnet test -c Release --no-build
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v3.0
+        with:
+          versionSpec: 5.x
+          
+      - name: Execute GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.0.0
+        
+      - name: Display Version
+        run: |
+          echo "Version: ${{ steps.gitversion.outputs.semVer }}"
+          echo "VERSION=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_ENV
+          
+      - name: Build
+        run: dotnet build -c Release /p:Version=${{ env.VERSION }}
+        
+      - name: Test
+        run: dotnet test -c Release --no-build
