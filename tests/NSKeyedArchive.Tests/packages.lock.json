@@ -4,9 +4,9 @@
     "net6.0": {
       "GitVersion.MsBuild": {
         "type": "Direct",
-        "requested": "[5.12.0, )",
-        "resolved": "5.12.0",
-        "contentHash": "dJuigXycpJNOiLT9or7mkHSkGFHgGW3/p6cNNYEKZBa7Hhp1FdX/cvqYWWYhRLpfoZOedeA7aRbYiOB3vW/dvA=="
+        "requested": "[6.0.5, )",
+        "resolved": "6.0.5",
+        "contentHash": "vjqDQVrYXbuokLtp5OryzvumVDF9THjpAiURAehKWEe2PEkxEzOQuedFdiSf9wChL6nxCRrL+rNZ5VhcDf6xYQ=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
@@ -134,9 +134,9 @@
     "net7.0": {
       "GitVersion.MsBuild": {
         "type": "Direct",
-        "requested": "[5.12.0, )",
-        "resolved": "5.12.0",
-        "contentHash": "dJuigXycpJNOiLT9or7mkHSkGFHgGW3/p6cNNYEKZBa7Hhp1FdX/cvqYWWYhRLpfoZOedeA7aRbYiOB3vW/dvA=="
+        "requested": "[6.0.5, )",
+        "resolved": "6.0.5",
+        "contentHash": "vjqDQVrYXbuokLtp5OryzvumVDF9THjpAiURAehKWEe2PEkxEzOQuedFdiSf9wChL6nxCRrL+rNZ5VhcDf6xYQ=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
@@ -264,9 +264,9 @@
     "net8.0": {
       "GitVersion.MsBuild": {
         "type": "Direct",
-        "requested": "[5.12.0, )",
-        "resolved": "5.12.0",
-        "contentHash": "dJuigXycpJNOiLT9or7mkHSkGFHgGW3/p6cNNYEKZBa7Hhp1FdX/cvqYWWYhRLpfoZOedeA7aRbYiOB3vW/dvA=="
+        "requested": "[6.0.5, )",
+        "resolved": "6.0.5",
+        "contentHash": "vjqDQVrYXbuokLtp5OryzvumVDF9THjpAiURAehKWEe2PEkxEzOQuedFdiSf9wChL6nxCRrL+rNZ5VhcDf6xYQ=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
